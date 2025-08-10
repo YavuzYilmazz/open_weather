@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { fetchWeatherByCity } from "../services/weather.service";
 import { ApiError } from "../utils/ApiError";
 
@@ -13,7 +13,9 @@ export async function getWeather(
     if (!city) {
       return next(new ApiError(400, "city query parameter is required"));
     }
+    const userId = (req as any).user?.id || "anonymous";
     const data = await fetchWeatherByCity(
+      userId,
       city as string,
       units as string | undefined
     );
