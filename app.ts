@@ -4,6 +4,7 @@ import type { Express, Request, Response } from "express";
 import weatherRoutes from "./routes/weather.routes";
 import authRoutes from "./routes/auth.routes";
 import adminRoutes from "./routes/admin.routes";
+import userRoutes from "./routes/user.routes";
 
 import { errorHandler } from "./middleware/error.middleware";
 import { asyncHandler } from "./middleware/asyncHandler.middleware";
@@ -22,6 +23,7 @@ app.get(
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/weather", weatherRoutes);
+app.use("/me", userRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

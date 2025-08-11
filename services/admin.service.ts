@@ -10,7 +10,31 @@ export async function createUserService(data: {
   return prisma.user.create({ data });
 }
 
-// List all weather queries (admin only)
-export async function listWeatherQueriesService() {
-  return prisma.weatherQuery.findMany();
+// List all weather queries with pagination (admin only)
+export async function listWeatherQueriesService(page = 1, size = 10) {
+  const skip = (page - 1) * size;
+  return prisma.weatherQuery.findMany({
+    skip,
+    take: size,
+    orderBy: { createdAt: "desc" },
+  });
+}
+// List weather queries for a specific user
+export async function listUserWeatherQueriesService(userId: string) {
+  return prisma.weatherQuery.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+  });
+}
+// List all users (admin only)
+export async function listUsersService(): Promise<User[]> {
+  return prisma.user.findMany();
+}
+// Update user role (admin only)
+export async function updateUserService(id: string, role: Role): Promise<User> {
+  return prisma.user.update({ where: { id }, data: { role } });
+}
+// Delete a user (admin only)
+export async function deleteUserService(id: string): Promise<User> {
+  return prisma.user.delete({ where: { id } });
 }

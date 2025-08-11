@@ -36,8 +36,9 @@ export function errorHandler(
   if (err instanceof ApiError && err.metadata) {
     body.metadata = err.metadata;
   }
+  // Include stack trace in development environment
   if (
-    process.env.NODE_ENV !== "production" &&
+    process.env.NODE_ENV === "development" &&
     err &&
     typeof err === "object" &&
     "stack" in err
