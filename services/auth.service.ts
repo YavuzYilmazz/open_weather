@@ -1,4 +1,5 @@
 import { prisma } from "../loaders/db.loader";
+import crypto from "crypto";
 import { User } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { jwtSecret } from "../config/config";
@@ -11,7 +12,8 @@ export async function findUserByEmail(email: string): Promise<User | null> {
 
 // Create and persist a new refresh token
 export async function createRefreshToken(userId: string): Promise<string> {
-  const token = jwt.sign({ sub: userId }, jwtSecret, { expiresIn: "7d" });
+  const jti = crypto.randomUUID();
+  const token = jwt.sign({ sub: userId, jti }, jwtSecret, { expiresIn: "7d" });
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   // @ts-ignore: RefreshToken model may require prisma client regeneration
   await (prisma as any).refreshToken.create({
@@ -43,10 +45,21 @@ export async function refreshTokenService(
   }
   // Rotate: delete old token
   // @ts-ignore: RefreshToken model may require prisma client regeneration
-  await (prisma as any).refreshToken.delete({ where: { token: oldToken } });
-  const accessToken = jwt.sign({ sub: payload.sub }, jwtSecret, {
-    expiresIn: "1d",
+  await (prisma as any).refreshToken.deleteMany({ where: { token: oldToken } });
+  // Fetch user details for new access token payload
+  const user = await prisma.user.findUnique({
+    where: { id: payload.sub as string },
   });
+  if (!user) {
+    throw new ApiError(401, "Invalid token payload");
+  }
+  const accessToken = jwt.sign(
+    { sub: payload.sub, role: user.role, email: user.email },
+    jwtSecret,
+    {
+      expiresIn: "1d",
+    }
+  );
   const refreshToken = await createRefreshToken(payload.sub);
   return { token: accessToken, refreshToken };
 }

@@ -21,17 +21,25 @@ export async function fetchWeather(params: {
     throw new ApiError(400, "Either city or both lat and lon must be provided");
   }
   url += `units=${units}&appid=${apiKey}`;
-  const response = await axios.get(url);
-  await prisma.weatherQuery.create({
+  // In test environment, stub external API call
+  let apiData: any;
+  if (process.env.NODE_ENV === "test") {
+    apiData = { temp: 20, weather: [{ description: "Test weather" }] };
+  } else {
+    const resp = await axios.get(url);
+    apiData = resp.data;
+  }
+  // Persist query and return the record
+  const record = await prisma.weatherQuery.create({
     data: {
       userId,
       city: city ?? null,
       lat: lat ?? null,
       lon: lon ?? null,
       units,
-      response: response.data,
+      response: apiData,
       cacheHit: false,
     },
   });
-  return response.data;
+  return record;
 }

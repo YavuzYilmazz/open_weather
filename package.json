@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "keywords": [],
   "author": "",
@@ -26,11 +27,16 @@
     "@prisma/client": "^6.13.0",
     "@types/express": "^5.0.3",
     "@types/express-rate-limit": "^6.0.2",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.2.1",
+    "@types/supertest": "^6.0.3",
     "@types/winston": "^2.4.4",
     "eslint": "^9.33.0",
+    "jest": "^30.0.5",
     "prettier": "^3.6.2",
     "prisma": "^6.13.0",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }

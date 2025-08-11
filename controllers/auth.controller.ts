@@ -26,9 +26,13 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       return next(new ApiError(401, "Invalid email or password"));
     }
     // Issue access token and persistent refresh token
-    const accessToken = jwt.sign({ sub: user.id, role: user.role }, jwtSecret, {
-      expiresIn: "1d",
-    });
+    const accessToken = jwt.sign(
+      { sub: user.id, role: user.role, email: user.email },
+      jwtSecret,
+      {
+        expiresIn: "1d",
+      }
+    );
     const refreshToken = await createRefreshToken(user.id);
     res.json({ token: accessToken, refreshToken });
   } catch (err) {
