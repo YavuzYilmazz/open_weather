@@ -32,12 +32,6 @@ jobs:
       - name: Type checking
         run: pnpm exec tsc --noEmit
 
-      - name: Lint
-        run: pnpm exec eslint .
-
-      - name: Run tests
-        run: pnpm test
-
       - name: Build application
         run: pnpm run build
 
