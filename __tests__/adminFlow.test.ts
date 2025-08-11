@@ -40,6 +40,24 @@ describe("Admin CRUD Flow", () => {
     adminToken = res.body.token;
   });
 
+  // Validation tests for create user
+  it("returns 400 when creating user with missing fields", async () => {
+    const res = await request(app)
+      .post("/admin/users")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({});
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("error");
+  });
+  it("returns 400 when creating user with invalid email format", async () => {
+    const res = await request(app)
+      .post("/admin/users")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({ email: "not-an-email", password: "UserPass123!", role: "USER" });
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("error");
+  });
+
   it("admin can create a new user", async () => {
     const res = await request(app)
       .post("/admin/users")
@@ -65,6 +83,24 @@ describe("Admin CRUD Flow", () => {
     expect(emails).toContain("user1@example.com");
   });
 
+  // Validation tests for update user
+  it("returns 400 when updating user with invalid id format", async () => {
+    const res = await request(app)
+      .patch("/admin/users/not-a-uuid")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({ role: "ADMIN" });
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("error");
+  });
+  it("returns 400 when updating user with missing fields", async () => {
+    const res = await request(app)
+      .patch(`/admin/users/${newUserId}`)
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({});
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("error");
+  });
+
   it("admin can update user role", async () => {
     const res = await request(app)
       .patch(`/admin/users/${newUserId}`)
@@ -72,6 +108,15 @@ describe("Admin CRUD Flow", () => {
       .send({ role: "ADMIN" });
     expect(res.status).toBe(200);
     expect(res.body.role).toBe("ADMIN");
+  });
+
+  // Validation test for delete user
+  it("returns 400 when deleting user with invalid id format", async () => {
+    const res = await request(app)
+      .delete("/admin/users/not-a-uuid")
+      .set("Authorization", `Bearer ${adminToken}`);
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("error");
   });
 
   it("admin can delete the user", async () => {
