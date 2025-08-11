@@ -17,9 +17,12 @@ interface Config {
 export const jwtSecret = requireEnv("JWT_SECRET");
 const portRaw = process.env.PORT ?? "3000";
 
+// Support both uppercase and lowercase DATABASE_URL
+const rawDbUrl = process.env.DATABASE_URL ?? process.env.database_url;
+if (!rawDbUrl) throw new Error("DATABASE_URL environment variable is required");
 export const config: Config = {
   port: Number(portRaw),
-  databaseUrl: requireEnv("DATABASE_URL"),
+  databaseUrl: rawDbUrl,
   openWeatherApiKey: requireEnv("OPENWEATHER_API_KEY"),
   cacheTtlSeconds: Number(process.env.CACHE_TTL_SECONDS ?? "3600"),
 };

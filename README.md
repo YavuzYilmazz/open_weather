@@ -129,11 +129,41 @@ pnpm test
    pnpm install
    ```
 3. Copy and configure environment variables:
+
    ```bash
    cp .env.example .env
    # Edit .env with your settings:
    # DATABASE_URL, REDIS_URL, OPENWEATHER_API_KEY, JWT_SECRET, CACHE_TTL_SECONDS
    ```
+
+   # Docker (Compose)
+
+   If you have Docker and Docker Compose installed, you can spin up the database, cache, and app with:
+
+   ```bash
+   docker-compose up -d --build
+   docker-compose ps
+   docker-compose logs app --tail=20
+   ```
+
+   To tear down:
+
+   ```bash
+   docker-compose down
+   ```
+
+   ### Docker Image
+
+   You can also build and run the Docker image directly:
+
+   ```bash
+   # Build the Docker image
+   docker build -t open_weather:latest .
+
+   # Run the image
+   docker run -d -p 3000:3000 --env-file .env.example --name weather_app open_weather:latest
+   ```
+
 4. Run database migrations:
    ```bash
    npx prisma migrate dev
@@ -151,6 +181,22 @@ pnpm test
   ```
 
 Server listens on port defined in `.env` (default: 3000).
+
+## Continuous Integration (CI) (optional)
+
+- Optionally, this project includes a sample GitHub Actions workflow at `.github/workflows/ci.yml`.
+- You can enable CI by copying or customizing this file to suit your needs.
+
+The workflow performs the following steps:
+
+1. Checks out the code.
+2. Installs dependencies with `pnpm install`.
+3. Runs type checking and linting.
+4. Executes the test suite (`pnpm test`).
+5. Builds the application (`pnpm run build`).
+6. (Optional) Builds Docker images via `docker-compose build`.
+
+- If your CI workflow includes database or Redis integration tests, you may configure the following environment variables (e.g., `DATABASE_URL`, `REDIS_URL`, `OPENWEATHER_API_KEY`, `JWT_SECRET`) as encrypted secrets in your repository settings. This is only required if your workflow executes integration tests.
 
 ## Endpoints
 
