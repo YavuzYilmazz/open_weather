@@ -41,7 +41,7 @@ jobs:
       - name: Build application
         run: pnpm run build
 
-      - name: Optional: Build Docker images
+      - name: "Optional: Build Docker images"
         if: github.event_name == 'push'
         run: |
           docker-compose build

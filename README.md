@@ -152,16 +152,23 @@ pnpm test
    docker-compose down
    ```
 
+     <!-- Docker badge -->
+
    ### Docker Image
 
-   You can also build and run the Docker image directly:
+   ![Docker Image](images/docker.png)
+
+   You can also pull, build, and run the Docker image.
 
    ```bash
-   # Build the Docker image
+   # Pull the Docker image from Docker Hub
+   docker pull YavuzYilmazz/open_weather:latest
+
+   # Build the Docker image locally (if you haven't published)
    docker build -t open_weather:latest .
 
    # Run the image
-   docker run -d -p 3000:3000 --env-file .env.example --name weather_app open_weather:latest
+   docker run -d -p 3000:3000 --env-file .env.example --name weather_app YavuzYilmazz/open_weather:latest
    ```
 
 4. Run database migrations:
