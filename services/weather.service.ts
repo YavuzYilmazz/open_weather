@@ -63,7 +63,9 @@ export async function fetchWeather(params: {
   // Cache the record for future requests (TTL 1h) only in non-test environments
   if (!isTest) {
     try {
-      await redis.set(cacheKey, JSON.stringify(record), { EX: 3600 });
+      await redis.set(cacheKey, JSON.stringify(record), {
+        EX: config.cacheTtlSeconds,
+      });
     } catch (error) {
       console.error("Redis set error:", error);
     }

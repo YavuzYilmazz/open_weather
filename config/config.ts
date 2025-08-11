@@ -11,6 +11,7 @@ interface Config {
   port: number;
   databaseUrl: string;
   openWeatherApiKey: string;
+  cacheTtlSeconds: number;
 }
 
 export const jwtSecret = requireEnv("JWT_SECRET");
@@ -20,6 +21,7 @@ export const config: Config = {
   port: Number(portRaw),
   databaseUrl: requireEnv("DATABASE_URL"),
   openWeatherApiKey: requireEnv("OPENWEATHER_API_KEY"),
+  cacheTtlSeconds: Number(process.env.CACHE_TTL_SECONDS ?? "3600"),
 };
 // Sentry DSN for error monitoring
 export const sentryDsn: string = process.env.SENTRY_DSN || "";
