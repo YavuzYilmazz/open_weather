@@ -2,6 +2,17 @@
 
 An Express/TypeScript API integrating OpenWeather, PostgreSQL (Prisma), Redis caching, JWT auth, Joi validation, Swagger docs, Winston logging, Sentry error tracking, rate limiting, Prometheus metrics, and CI/CD readiness.
 
+## Architectural Decisions
+
+- **Monolithic Express Structure**: Chosen for its simplicity and rapid development cycle, combining routing, middleware, and controllers in a single deployable service.
+- **Service Layer Separation**: Controllers handle HTTP concerns (request parsing, response formatting), while Services encapsulate business logic and data access. This separation improves testability, maintainability, and clear responsibility boundaries.
+- **Error Handling Strategy**: Centralized `ApiError` class and middleware capture synchronous and asynchronous errors, returning consistent HTTP error responses and logging details via Winston.
+
+## Database Optimization Notes
+
+- **Prisma Schema & Indexes**: Composite and single-field indexes added on `weatherQuery.userId`, `weatherQuery.createdAt`, and `user.email` to accelerate common lookup queries (e.g., fetching user-specific query history, ordering by creation date).
+- **Normalization Decisions**: Data normalized with separate `User` and `WeatherQuery` tables to avoid duplication. Denormalization minimized to JSON-serialized `response` field in `WeatherQuery` for flexibility in storing external API payloads without schema changes.
+
 ## Prerequisites
 
 - Node.js (>=14)
