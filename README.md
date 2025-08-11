@@ -121,7 +121,7 @@ pnpm test
    ```bash
    cp .env.example .env
    # Edit .env with your settings:
-   # DATABASE_URL, REDIS_URL, OPENWEATHER_API_KEY, JWT_SECRET, CACHE_TTL_SECONDS, SENTRY_DSN
+   # DATABASE_URL, REDIS_URL, OPENWEATHER_API_KEY, JWT_SECRET, CACHE_TTL_SECONDS
    ```
 4. Run database migrations:
    ```bash
