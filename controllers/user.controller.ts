@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
-import { listUserQueriesService } from "../services/user.service";
 import { listWeatherQueriesService } from "../services/admin.service";
+import { listUserQueriesService } from "../services/user.service";
 import { ApiError } from "../utils/ApiError";
 
 // GET /weather/queries - List queries for the authenticated user

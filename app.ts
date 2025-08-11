@@ -5,6 +5,8 @@ import * as Sentry from "@sentry/node";
 import { collectDefaultMetrics, register } from "prom-client";
 import { logger } from "./utils/logger";
 import { sentryDsn } from "./config/config";
+import swaggerUi from "swagger-ui-express";
+import swaggerJsdoc from "swagger-jsdoc";
 
 import weatherRoutes from "./routes/weather.routes";
 import authRoutes from "./routes/auth.routes";
@@ -47,6 +49,31 @@ app.get("/metrics", async (_req: Request, res: Response) => {
   res.set("Content-Type", register.contentType);
   res.end(await register.metrics());
 });
+
+// Swagger setup
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Weather API",
+      version: "1.0.0",
+      description: "API documentation for the Weather service",
+    },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [{ bearerAuth: [] }],
+  },
+  apis: ["./routes/*.ts"],
+};
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get(
   "/health",

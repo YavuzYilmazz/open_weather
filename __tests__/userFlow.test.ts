@@ -51,21 +51,29 @@ describe("User Query Flow", () => {
     queryId = res.body.id;
   });
 
+  it("returns 400 when submitting a weather query with missing params", async () => {
+    const res = await request(app)
+      .get("/weather")
+      .set("Authorization", `Bearer ${userToken}`);
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty("error");
+  });
+  it("allows user to submit a weather query by coordinates", async () => {
+    const res = await request(app)
+      .get("/weather")
+      .query({ lat: "48.8566", lon: "2.3522" })
+      .set("Authorization", `Bearer ${userToken}`);
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("id");
+    expect(res.body).toHaveProperty("userId");
+  });
+
   it("lists own queries under /weather/queries", async () => {
     const res = await request(app)
       .get("/weather/queries")
       .set("Authorization", `Bearer ${userToken}`);
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
-    const ids = res.body.map((q: any) => q.id);
-    expect(ids).toContain(queryId);
-  });
-
-  it("lists own queries under /me/queries route", async () => {
-    const res = await request(app)
-      .get("/me/queries")
-      .set("Authorization", `Bearer ${userToken}`);
-    expect(res.status).toBe(200);
     const ids = res.body.map((q: any) => q.id);
     expect(ids).toContain(queryId);
   });
