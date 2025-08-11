@@ -51,6 +51,15 @@ describe("User Query Flow", () => {
     queryId = res.body.id;
   });
 
+  it("returns cacheHit true when submitting the same query again", async () => {
+    const res = await request(app)
+      .get("/weather")
+      .query({ city: "Paris" })
+      .set("Authorization", `Bearer ${userToken}`);
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("cacheHit", true);
+  });
+
   it("returns 400 when submitting a weather query with missing params", async () => {
     const res = await request(app)
       .get("/weather")
