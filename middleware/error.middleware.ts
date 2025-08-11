@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/ApiError";
+import * as Sentry from "@sentry/node";
+import { sentryDsn } from "../config/config";
+import { logger } from "../utils/logger";
 
 export function errorHandler(
   err: any,
@@ -35,6 +38,13 @@ export function errorHandler(
   const body: Record<string, unknown> = { error: message };
   if (err instanceof ApiError && err.metadata) {
     body.metadata = err.metadata;
+  }
+  // Log error and capture in Sentry if configured
+  logger.error(
+    err instanceof Error ? err.stack || err.message : JSON.stringify(err)
+  );
+  if (sentryDsn) {
+    Sentry.captureException(err);
   }
   // Include stack trace in development environment
   if (

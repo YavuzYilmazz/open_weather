@@ -21,3 +21,5 @@ export const config: Config = {
   databaseUrl: requireEnv("DATABASE_URL"),
   openWeatherApiKey: requireEnv("OPENWEATHER_API_KEY"),
 };
+// Sentry DSN for error monitoring
+export const sentryDsn: string = process.env.SENTRY_DSN || "";
