@@ -36,5 +36,9 @@ export async function updateUserService(id: string, role: Role): Promise<User> {
 }
 // Delete a user (admin only)
 export async function deleteUserService(id: string): Promise<User> {
-  return prisma.user.delete({ where: { id } });
+  // Delete user's weather queries first within a transaction to avoid foreign key constraint errors
+  return prisma.$transaction(async (tx) => {
+    await tx.weatherQuery.deleteMany({ where: { userId: id } });
+    return tx.user.delete({ where: { id } });
+  });
 }

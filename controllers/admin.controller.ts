@@ -76,6 +76,11 @@ export async function updateUser(
 ) {
   try {
     const { id } = req.params;
+    // Prevent admins from changing their own role to avoid lockout
+    const requestingUserId = (req as any).user?.id;
+    if (requestingUserId === id) {
+      return next(new ApiError(400, "Admins cannot change their own role"));
+    }
     if (!id) {
       return next(new ApiError(400, "User id is required"));
     }
@@ -98,6 +103,11 @@ export async function deleteUser(
 ) {
   try {
     const { id } = req.params;
+    // Prevent admins from deleting their own account
+    const requestingUserId = (req as any).user?.id;
+    if (requestingUserId === id) {
+      return next(new ApiError(400, "Admins cannot delete their own account"));
+    }
     if (!id) {
       return next(new ApiError(400, "User id is required"));
     }
