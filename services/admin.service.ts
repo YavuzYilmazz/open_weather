@@ -39,6 +39,8 @@ export async function deleteUserService(id: string): Promise<User> {
   // Delete user's weather queries first within a transaction to avoid foreign key constraint errors
   return prisma.$transaction(async (tx) => {
     await tx.weatherQuery.deleteMany({ where: { userId: id } });
+    // @ts-ignore: RefreshToken model on transaction client
+    await (tx as any).refreshToken.deleteMany({ where: { userId: id } });
     return tx.user.delete({ where: { id } });
   });
 }

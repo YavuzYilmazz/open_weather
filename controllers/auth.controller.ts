@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../utils/ApiError";
 import {
   findUserByEmail,
+  createRefreshToken,
   refreshTokenService,
   logoutService,
 } from "../services/auth.service";
@@ -24,12 +25,12 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     if (!valid) {
       return next(new ApiError(401, "Invalid email or password"));
     }
-    const token = jwt.sign(
-      { sub: user.id, role: user.role, email: user.email },
-      jwtSecret,
-      { expiresIn: "1d" } //  jwt Token expiration time
-    );
-    res.json({ token });
+    // Issue access token and persistent refresh token
+    const accessToken = jwt.sign({ sub: user.id, role: user.role }, jwtSecret, {
+      expiresIn: "1d",
+    });
+    const refreshToken = await createRefreshToken(user.id);
+    res.json({ token: accessToken, refreshToken });
   } catch (err) {
     next(err);
   }
@@ -37,10 +38,12 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 // POST /auth/refresh - Refresh JWT
 export async function refresh(req: Request, res: Response, next: NextFunction) {
   try {
-    const { token } = req.body;
-    if (!token) return next(new ApiError(400, "Refresh token is required"));
-    const newToken = await refreshTokenService(token);
-    res.json({ token: newToken });
+    const { refreshToken } = req.body;
+    if (!refreshToken)
+      return next(new ApiError(400, "Refresh token is required"));
+    const { token: newAccessToken, refreshToken: newRefreshToken } =
+      await refreshTokenService(refreshToken);
+    res.json({ token: newAccessToken, refreshToken: newRefreshToken });
   } catch (err) {
     next(err);
   }
@@ -48,17 +51,12 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
 // POST /auth/logout - Logout user
 export async function logout(req: Request, res: Response, next: NextFunction) {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return next(
-        new ApiError(401, "Authorization header missing or malformed")
-      );
+    // Logout by revoking refresh token
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return next(new ApiError(400, "Refresh token is required for logout"));
     }
-    const token = authHeader.split(" ")[1];
-    if (!token) {
-      return next(new ApiError(401, "Token missing"));
-    }
-    await logoutService(token);
+    await logoutService(refreshToken);
     res.json({ success: true });
   } catch (err) {
     next(err);
